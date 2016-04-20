@@ -1,0 +1,6 @@
+# Quick setup
+
+```
+npm install
+```
+
