@@ -27,6 +27,8 @@ function ensureNumber(value: unknown): number {
 
 type Result<T> = T | Error
 
+// TODO: parse incoming message to a Message object
+
 // function messageParser(message: string): Result<Message> {
 //   try {
 //     const parsed = JSON.parse(message)
