@@ -4,6 +4,7 @@ import { moduleRegistry } from './src/moduleManager'
 import { parseEnv } from './src/parseEnv'
 
 import './src/modules' // this import triggers the module registration
+import { setSpaceshipState } from './src/spaceshipStates'
 
 const PORT = parseEnv('PORT', Number) || 8080
 
@@ -39,11 +40,18 @@ Bun.serve({
         return
       }
 
-      const { value } = parsedMessage
-      console.log(value)
+      const {
+        value: { callsign, ...spaceshipState }
+      } = parsedMessage
+      console.log({ callsign, ...spaceshipState })
 
       // TODO: forward message to module
-      // ..........
+      const diff = setSpaceshipState(callsign, spaceshipState)
+      console.log('diff:', diff)
+
+      if (!diff) {
+        return
+      }
     }
   },
 

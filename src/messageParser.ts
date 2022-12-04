@@ -5,7 +5,7 @@ const validKeys = ['callsign', 'hull', 'shieldsActive'] as const
 type ValidKey = typeof validKeys[number]
 
 type Message = {
-  callsign: string
+  callsign: SpaceShipID
   hull: number
   shieldsActive: 0 | 1
 }

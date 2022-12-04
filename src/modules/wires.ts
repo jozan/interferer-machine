@@ -1,7 +1,14 @@
-import { registerModule } from '../moduleManager'
+import { ModuleInitResult, registerModule } from '../moduleManager'
 
-async function init(signal: AbortSignal): Promise<void> {
-  console.log('wires module: init')
+const subscribesTo: string[] = []
+
+async function init(signal: AbortSignal): Promise<ModuleInitResult> {
+  return {
+    subscribesTo,
+    listener(changed) {
+      console.log('wires module: changed:', changed)
+    }
+  }
 }
 
 void registerModule(import.meta.url, {

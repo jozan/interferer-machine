@@ -7,3 +7,5 @@ type ModuleMeta = {
   name: string
   description: string
 }
+
+type SpaceShipID = string & { spaceship: true }

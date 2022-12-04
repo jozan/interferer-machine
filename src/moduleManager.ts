@@ -1,6 +1,11 @@
 import type { Promisable } from 'type-fest'
+import { SpaceshipStateDiff } from './spaceshipStates'
 
-type ModuleInitResult = void | false
+export type ModuleInitResult = {
+  subscribesTo: string[]
+  listener: (changed: SpaceshipStateDiff) => void
+}
+
 type ModuleInit = (signal: AbortSignal) => Promisable<ModuleInitResult>
 
 type ModuleLoader = {
@@ -19,7 +24,12 @@ async function setupModule(id: ModuleID, loader: ModuleLoader): Promise<void> {
   const controller = new AbortController()
   moduleControllers.set(id, controller)
   moduleRegistry.set(id, loader)
-  // const result = await loader.init(controller.signal)
+  const { subscribesTo, listener } = await loader.init(controller.signal)
+
+  if (subscribesTo.length > 0) {
+    console.log('module', id, 'subscribes to', subscribesTo)
+    // register listener
+  }
 }
 
 export async function registerModule(url: string, ...loaders: ModuleLoader[]) {
@@ -29,3 +39,5 @@ export async function registerModule(url: string, ...loaders: ModuleLoader[]) {
     setupModule(id, loader)
   }
 }
+
+const subscribableEvents = ['hull', 'shieldsActive'] as const
