@@ -1,6 +1,9 @@
+import { errorPrinter } from './src/errorPrinter'
+import { parseMessage } from './src/messageParser'
 import { moduleRegistry } from './src/moduleManager'
-import './src/modules'
 import { parseEnv } from './src/parseEnv'
+
+import './src/modules' // this import triggers the module registration
 
 const PORT = parseEnv('PORT', Number) || 8080
 
@@ -24,9 +27,23 @@ Bun.serve({
     open(ws) {
       console.log('client connected')
     },
-    message(ws, message) {
+    message(ws, wsMessage) {
+      if (typeof wsMessage !== 'string') {
+        console.error('invalid wsMessage type: Uint8Array')
+        return
+      }
+
+      const parsedMessage = parseMessage(wsMessage)
+      if (!parsedMessage.ok) {
+        errorPrinter('invalid message:', parsedMessage.errors)
+        return
+      }
+
+      const { value } = parsedMessage
+      console.log(value)
+
       // TODO: forward message to module
-      console.log(message)
+      // ..........
     }
   },
 
