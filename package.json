@@ -1,17 +1,10 @@
 {
-  "name": "ee-interferer-machine",
-  "version": "0.0.1",
-  "description": "",
-  "main": "machine.js",
-  "dependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.4.0",
-    "babel-plugin-syntax-object-rest-spread": "^6.13.0"
+  "name": "interferer-machine",
+  "module": "main.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "^0.2.2",
+    "type-fest": "^3.2.0"
   },
-  "scripts": {
-    "start": "./node_modules/.bin/babel-node machine.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Johan Ruokangas",
-  "license": "BSD 3-Clause"
+  "dependencies": {}
 }
