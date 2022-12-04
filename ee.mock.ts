@@ -2,6 +2,18 @@ import { parseEnv } from './src/parseEnv'
 
 const data = ['callsign', 'Earthship Sagan', 'hull', 250.0, 'shieldsActive', 0]
 
+function pickRandom(arr: any[]) {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+function generateData() {
+  const callsign = pickRandom(['Earthship Sagan', 'Moonship Hawking'])
+  const hull = Math.random() * 1000
+  const shieldsActive = Math.random() > 0.5 ? 1 : 0
+
+  return ['callsign', callsign, 'hull', hull, 'shieldsActive', shieldsActive]
+}
+
 const PORT = parseEnv('PORT', Number) || 8080
 const WEBSOCKET_URL =
   parseEnv('WEBSOCKET_URL', (value) => {
@@ -47,7 +59,7 @@ function connectWebSocket() {
   })
 
   function sendData() {
-    ws.send(JSON.stringify(data))
+    ws.send(JSON.stringify(generateData()))
     setTimeout(sendData, 1000)
   }
 }

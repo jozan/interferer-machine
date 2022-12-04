@@ -1,21 +1,26 @@
 import { errorPrinter } from './src/errorPrinter'
 import { parseMessage } from './src/messageParser'
-import { moduleRegistry } from './src/moduleManager'
+import { getSubscribers, moduleRegistry } from './src/moduleManager'
 import { parseEnv } from './src/parseEnv'
 
 import './src/modules' // this import triggers the module registration
 import { setSpaceshipState } from './src/spaceshipStates'
+import { bold, faded, green } from './src/term'
 
 const PORT = parseEnv('PORT', Number) || 8080
 
-console.log(`interferer machine`.toLocaleUpperCase())
+console.log(bold(`\ninterferer machine`.toLocaleUpperCase()))
 console.log('-----------------\n')
-console.log(`http server: http://localhost:${PORT}`)
-console.log(`websocket:   ws://localhost:${PORT}\n`)
+console.log(`${bold('http server:')} http://localhost:${PORT}`)
+console.log(`${bold('websocket:')}   ws://localhost:${PORT}\n`)
 
-console.log(`registered modules: (${moduleRegistry.size})`)
-for (const [id] of moduleRegistry) {
-  console.log(`- ${id}`)
+console.log(bold(`registered modules: (${moduleRegistry.size})`))
+for (const [id, mod] of moduleRegistry) {
+  const part1 = `${bold(id)}`
+  const part2 = faded(`(${mod.subscribesTo.length} subscriptions)`)
+  const part3 = green(`[${mod.subscribesTo.join(', ')}]`)
+
+  console.log(`    - ${part1} ${part2}\n      ${part3}`)
 }
 
 console.log('\n-----------------\n')
@@ -45,12 +50,24 @@ Bun.serve({
       } = parsedMessage
       console.log({ callsign, ...spaceshipState })
 
-      // TODO: forward message to module
-      const diff = setSpaceshipState(callsign, spaceshipState)
+      const [diff, changedKeys] = setSpaceshipState(callsign, spaceshipState)
       console.log('diff:', diff)
 
       if (!diff) {
         return
+      }
+
+      const subscriptions = getSubscribers(changedKeys)
+
+      for (const id of subscriptions) {
+        const mod = moduleRegistry.get(id)
+        if (!mod) {
+          console.error(
+            `module ${id} not subscribed to [${changedKeys.join(', ')}]`
+          )
+        }
+
+        mod!.listener(diff)
       }
     }
   },
