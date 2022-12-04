@@ -11,8 +11,10 @@ const WEBSOCKET_URL =
     return value
   }) || 'ws://127.0.0.1:8080'
 
+let wsReconnectCounter = 1
+
 function connectWebSocket() {
-  console.log('[EE MOCK] connecting to websocket server...')
+  console.log('[EE MOCK]: connecting to websocket server...')
   const ws = new WebSocket(WEBSOCKET_URL)
 
   ws.addEventListener('message', (e) => {
@@ -22,6 +24,7 @@ function connectWebSocket() {
 
   ws.addEventListener('open', (e) => {
     console.log(`[EE MOCK]: Connected to the websocket server: ${ws.url}`)
+    wsReconnectCounter = 1
     sendData()
   })
 
@@ -30,11 +33,17 @@ function connectWebSocket() {
   })
 
   ws.addEventListener('close', (e) => {
-    console.log('[EE MOCK]: Disconnected from the websocket server')
-    setTimeout(() => {
-      console.log('[EE MOCK]: Reconnecting to websocket server...')
-      connectWebSocket()
-    }, 1000)
+    if (wsReconnectCounter === 1) {
+      console.log('[EE MOCK]: Disconnected from the websocket server')
+    }
+    setTimeout(
+      () => {
+        console.log(`[EE MOCK]: Reconnect attempt ${wsReconnectCounter}`)
+        wsReconnectCounter += 1
+        connectWebSocket()
+      },
+      wsReconnectCounter <= 5 ? 1000 : 10000
+    )
   })
 
   function sendData() {
