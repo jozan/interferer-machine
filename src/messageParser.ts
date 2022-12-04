@@ -2,11 +2,18 @@ import { chunk } from './chunk'
 import { failure, ok, Result } from './result'
 
 const validKeys = ['callsign', 'hull', 'shieldsActive'] as const
+type ValidKey = typeof validKeys[number]
 
 type Message = {
   callsign: string
   hull: number
   shieldsActive: 0 | 1
+}
+
+const validators = {
+  callsign: withError(ensureString, `callsign must be a string`),
+  hull: withError(ensureNumber, `hull must be a number`),
+  shieldsActive: withError(ensureZeroOrOne, `shieldsActive must be 0 or 1`)
 }
 
 // TODO: parse incoming message to a Message object
@@ -35,27 +42,12 @@ export function parseMessage(input: string): Result<Message> {
     if (!validKeys.includes(key as any)) {
       // TODO: maybe skip unkown keys?
       errors.push(new Error('Unknown key: ' + key))
+      continue
     }
 
-    if (key === 'callsign') {
-      const callsign = ensureString(value)
-      if (callsign === null) {
-        errors.push(new Error('Expected string for callsign'))
-      }
-    }
-
-    if (key === 'hull') {
-      const hull = ensureNumber(value)
-      if (hull === null) {
-        errors.push(new Error('Expected number for hull'))
-      }
-    }
-
-    if (key === 'shieldsActive') {
-      const shieldsActive = ensureZeroOrOne(value)
-      if (shieldsActive === null) {
-        errors.push(new Error('Expected 0 or 1 for shieldsActive'))
-      }
+    const [error] = validators[key as ValidKey](value)
+    if (error) {
+      errors.push(new Error(error))
     }
   }
 
@@ -64,6 +56,21 @@ export function parseMessage(input: string): Result<Message> {
   }
 
   return ok(Object.fromEntries(entries))
+}
+
+function withError<T>(
+  validator: (value: unknown) => T | null,
+  message: string
+) {
+  return (input: unknown): [null, T] | [string, null] => {
+    const value = validator(input)
+
+    if (value === null) {
+      return [message, null]
+    }
+
+    return [null, value]
+  }
 }
 
 function ensureString(value: unknown): string | null {
