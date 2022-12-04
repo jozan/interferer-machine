@@ -16,7 +16,6 @@ const validators = {
   shieldsActive: withError(ensureZeroOrOne, `shieldsActive must be 0 or 1`)
 }
 
-// TODO: parse incoming message to a Message object
 export function parseMessage(input: string): Result<Message> {
   const message = JSON.parse(input)
 

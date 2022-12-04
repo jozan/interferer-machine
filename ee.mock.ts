@@ -65,16 +65,5 @@ Bun.serve({
     return new Response('[EE MOCK]: Uh oh!!\n' + error.toString(), {
       status: 500
     })
-  },
-  websocket: {
-    close(ws) {
-      console.log('[EE MOCK]: Client disconnected')
-    },
-    open(ws) {
-      console.log('[EE MOCK]: Client connected')
-    },
-    message(ws, message) {
-      console.log(message)
-    }
   }
 })
