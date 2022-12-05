@@ -16,23 +16,47 @@ type ModuleLoader = {
   listener: (changed: SpaceshipStateDiff) => void
 }
 
+type ModuleLoaderWithSelector = ModuleLoader & {
+  selector: ReturnType<typeof createSelector>
+}
+
 const moduleControllers = new Map<ModuleID, AbortController>()
-export const moduleRegistry = new Map<ModuleID, ModuleLoader>()
-const moduleSubscriptions = new Map<number | bigint, Set<ModuleID>>()
+export const moduleRegistry = new Map<ModuleID, ModuleLoaderWithSelector>()
 
 const getModuleID = (url: string): ModuleID =>
   url.split('/').pop()!.split('.')[0] as ModuleID
 
+function createSelector(
+  subscribedEvents: Events
+): (state: SpaceshipStateDiff) => SpaceshipStateDiff | null {
+  return (state) => {
+    const selectedState = subscribedEvents.reduce((acc, property) => {
+      if (property in state) {
+        // @ts-expect-error
+        acc[property] = state[property]
+      }
+
+      return acc
+    }, {} as SpaceshipStateDiff)
+
+    // is empty object
+    if (Object.keys(selectedState).length === 0) {
+      return null
+    }
+
+    return selectedState
+  }
+}
+
 async function setupModule(id: ModuleID, loader: ModuleLoader): Promise<void> {
   const controller = new AbortController()
   moduleControllers.set(id, controller)
-  moduleRegistry.set(id, loader)
+  const loaderWithSelector = loader as ModuleLoaderWithSelector
+  const { init, subscribesTo } = loaderWithSelector
 
-  const { init, subscribesTo } = loader
+  loaderWithSelector.selector = createSelector(subscribesTo)
 
-  if (subscribesTo.length > 0) {
-    registerListener(subscribesTo, id)
-  }
+  moduleRegistry.set(id, loaderWithSelector)
 
   await init(controller.signal)
 }
@@ -51,26 +75,4 @@ function sort<T>(input: T[]): T[] {
 
 export function subscriptionKey(events: Events): number | bigint {
   return Bun.hash(sort(events).join(''), 1000)
-}
-
-function registerListener(subscribesTo: Events, moduleId: ModuleID): void {
-  const key = subscriptionKey(subscribesTo)
-
-  if (!moduleSubscriptions.has(key)) {
-    moduleSubscriptions.set(key, new Set([moduleId]))
-    return
-  }
-
-  const modules = moduleSubscriptions.get(key)!
-  modules.add(moduleId)
-}
-
-export function getSubscribers(events: Events): Set<ModuleID> {
-  const key = subscriptionKey(events)
-
-  if (!moduleSubscriptions.has(key)) {
-    return new Set()
-  }
-
-  return moduleSubscriptions.get(key)!
 }

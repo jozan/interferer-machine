@@ -1,6 +1,6 @@
 import { errorPrinter } from './src/errorPrinter'
 import { parseMessage } from './src/messageParser'
-import { getSubscribers, moduleRegistry } from './src/moduleManager'
+import { moduleRegistry } from './src/moduleManager'
 import { parseEnv } from './src/parseEnv'
 
 import './src/modules' // this import triggers the module registration
@@ -50,24 +50,18 @@ Bun.serve({
       } = parsedMessage
       console.log({ callsign, ...spaceshipState })
 
-      const [diff, changedKeys] = setSpaceshipState(callsign, spaceshipState)
+      const diff = setSpaceshipState(callsign, spaceshipState)
       console.log('diff:', diff)
 
       if (!diff) {
         return
       }
 
-      const subscriptions = getSubscribers(changedKeys)
-
-      for (const id of subscriptions) {
-        const mod = moduleRegistry.get(id)
-        if (!mod) {
-          console.error(
-            `module ${id} not subscribed to [${changedKeys.join(', ')}]`
-          )
+      for (const [_id, mod] of moduleRegistry) {
+        const payload = mod.selector(diff)
+        if (payload) {
+          mod.listener(payload)
         }
-
-        mod!.listener(diff)
       }
     }
   },

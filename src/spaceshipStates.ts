@@ -11,7 +11,7 @@ const SpaceshipRegistry = new Map<SpaceShipID, SpaceshipState>()
 export function setSpaceshipState(
   id: SpaceShipID,
   newState: SpaceshipState
-): [SpaceshipStateDiff | null, SpaceshipStateKeys[]] {
+): SpaceshipStateDiff | null {
   const currentState = SpaceshipRegistry.get(id)
   const diff = currentState
     ? getSpaceshipStateDiff(currentState, newState)
@@ -20,10 +20,10 @@ export function setSpaceshipState(
   SpaceshipRegistry.set(id, newState)
 
   if (Object.keys(diff).length > 0) {
-    return [diff, [...(Object.keys(diff) as SpaceshipStateKeys[])]]
+    return diff
   }
 
-  return [null, []]
+  return null
 }
 
 export function getSpaceshipState(id: SpaceShipID) {
