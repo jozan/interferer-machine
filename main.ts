@@ -15,6 +15,9 @@ if (!globalThis.URLPattern) {
 
 const PORT = parseEnv('PORT', Number) || 8080
 
+/**
+ * Start up message
+ */
 console.log(bold(`\ninterferer machine`.toLocaleUpperCase()))
 console.log('-----------------\n')
 console.log(`${bold('http server:')} http://localhost:${PORT}`)
@@ -30,6 +33,7 @@ for (const [id, mod] of moduleRegistry) {
 }
 
 console.log('\n-----------------\n')
+// end startup message
 
 /**
  * Define the HTTP routes
