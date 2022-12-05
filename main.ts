@@ -6,6 +6,12 @@ import { parseEnv } from './src/parseEnv'
 import './src/modules' // this import triggers the module registration
 import { setSpaceshipState } from './src/spaceshipStates'
 import { bold, faded, green } from './src/term'
+import { Router } from './src/router'
+
+// @ts-ignore: Property 'UrlPattern' does not exist
+if (!globalThis.URLPattern) {
+  await import('urlpattern-polyfill')
+}
 
 const PORT = parseEnv('PORT', Number) || 8080
 
@@ -25,6 +31,20 @@ for (const [id, mod] of moduleRegistry) {
 
 console.log('\n-----------------\n')
 
+/**
+ * Define the HTTP routes
+ */
+const router = new Router()
+router.get('/', () => new Response('hello from new router!'))
+router.post('/device/:id', async ({ req, text }) => {
+  const deviceId = req.param('id')
+  console.log(`received a message from device ${deviceId}:`, await req.text())
+  return text(`device id: ${deviceId}`)
+})
+
+/**
+ * Start the HTTP server
+ */
 Bun.serve({
   port: PORT,
 
@@ -66,15 +86,13 @@ Bun.serve({
     }
   },
 
-  // http server
   fetch(req, server) {
+    // Required for the websocket server to work properly
     if (server.upgrade(req)) {
       console.log('upgraded connection to websocket')
       return
     }
 
-    return new Response(
-      `interferer machine server running in http://localhost:${PORT}`
-    )
+    return router.fetch(req, server)
   }
 })
