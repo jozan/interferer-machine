@@ -7,6 +7,8 @@ import './src/modules' // this import triggers the module registration
 import { setSpaceshipState } from './src/spaceshipStates'
 import { bold, faded, green } from './src/term'
 import { Router } from './src/router'
+import { render } from './src/pageRenderer'
+import { Index } from './src/pages'
 
 // @ts-ignore: Property 'UrlPattern' does not exist
 if (!globalThis.URLPattern) {
@@ -39,8 +41,11 @@ console.log('\n-----------------\n')
  * Define the HTTP routes
  */
 const router = new Router()
-router.get('/', () => new Response('hello from new router!'))
-router.post('/device/:id', async ({ req, text }) => {
+router.get(
+  '/',
+  async () => new Response(await render(<Index />), { status: 200 })
+)
+router.post('/device/:id', async ({ req, text, server }) => {
   const deviceId = req.param('id')
   console.log(`received a message from device ${deviceId}:`, await req.text())
   return text(`device id: ${deviceId}`)
