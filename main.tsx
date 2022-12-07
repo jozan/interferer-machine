@@ -9,6 +9,7 @@ import { bold, faded, green } from './src/term'
 import { Router } from './src/router'
 import { render } from './src/pageRenderer'
 import { Index } from './src/pages'
+import { time } from './src/time'
 
 // @ts-ignore: Property 'UrlPattern' does not exist
 if (!globalThis.URLPattern) {
@@ -47,7 +48,10 @@ router.get(
 )
 router.post('/device/:id', async ({ req, text, server }) => {
   const deviceId = req.param('id')
-  console.log(`received a message from device ${deviceId}:`, await req.text())
+  console.log(
+    `[${time()}]: a message from device '${deviceId}':`,
+    await req.text()
+  )
   return text(`device id: ${deviceId}`)
 })
 
