@@ -1,3 +1,4 @@
+import './src/polyfills'
 import { errorPrinter } from './src/errorPrinter'
 import { parseMessage } from './src/messageParser'
 import { moduleRegistry } from './src/moduleManager'
@@ -10,11 +11,6 @@ import { Router } from './src/router'
 import { render } from './src/pageRenderer'
 import { Index } from './src/pages'
 import { time } from './src/time'
-
-// @ts-ignore: Property 'UrlPattern' does not exist
-if (!globalThis.URLPattern) {
-  await import('urlpattern-polyfill')
-}
 
 const PORT = parseEnv('PORT', Number) || 8080
 
