@@ -1,81 +1,88 @@
-import { parseEnv } from './src/parseEnv'
+import { parseEnv } from "./src/parseEnv"
+import { createLogger } from "./src/term"
 
-const data = ['callsign', 'Earthship Sagan', 'hull', 250.0, 'shieldsActive', 0]
+const logger = createLogger("EE CLIENT")
+
+const data = ["callsign", "Earthship Sagan", "hull", 250.0, "shieldsActive", 0]
 
 function pickRandom(arr: any[]) {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
 function generateData() {
-  const callsign = pickRandom(['Earthship Sagan', 'Moonship Hawking'])
+  const callsign = pickRandom(["Earthship Sagan", "Moonship Hawking"])
   const hull = Math.random() * 1000
   const shieldsActive = Math.random() > 0.5 ? 1 : 0
 
-  return ['callsign', callsign, 'hull', hull, 'shieldsActive', shieldsActive]
+  return ["callsign", callsign, "hull", hull, "shieldsActive", shieldsActive]
 }
 
-const PORT = parseEnv('PORT', Number) || 8080
-const WEBSOCKET_URL =
-  parseEnv('WEBSOCKET_URL', (value) => {
-    if (!value.startsWith('ws://')) {
-      throw new Error('Invalid websocket URL')
-    }
-    return value
-  }) || 'ws://127.0.0.1:8080'
+const PORT = parseEnv("PORT", Number) || 8080
+const INTERVAL = parseEnv("INTERVAL", Number) || 1000
 
-let wsReconnectCounter = 1
+logger("Empty Epsilon mock game client started!")
 
-function connectWebSocket() {
-  console.log('[EE MOCK]: connecting to websocket server...')
-  const ws = new WebSocket(WEBSOCKET_URL)
-
-  ws.addEventListener('message', (e) => {
-    const message = JSON.parse(e.data)
-    console.log('[EE MOCK]: Received message:', message)
-  })
-
-  ws.addEventListener('open', (e) => {
-    console.log(`[EE MOCK]: Connected to the websocket server: ${ws.url}`)
-    wsReconnectCounter = 1
-    sendData()
-  })
-
-  ws.addEventListener('error', (e) => {
-    console.log('[EE MOCK]: Error:', e)
-  })
-
-  ws.addEventListener('close', (e) => {
-    if (wsReconnectCounter === 1) {
-      console.log('[EE MOCK]: Disconnected from the websocket server')
-    }
-    setTimeout(
-      () => {
-        console.log(`[EE MOCK]: Reconnect attempt ${wsReconnectCounter}`)
-        wsReconnectCounter += 1
-        connectWebSocket()
-      },
-      wsReconnectCounter <= 5 ? 1000 : 10000
-    )
-  })
-
-  function sendData() {
-    ws.send(JSON.stringify(generateData()))
-    setTimeout(sendData, 1000)
-  }
+const internalState = {
+  clients: 0,
 }
 
-connectWebSocket()
+const CHANNEL_ID = "broadcast"
 
-// open up the server so mock process is long lived
-console.log('[EE MOCK]: Empty Epsilon mock server started!')
-Bun.serve({
+type WebSocketData = {
+  createdAt: number
+}
+
+const server = Bun.serve<WebSocketData>({
   port: PORT,
-  fetch(req) {
-    return new Response('[EE MOCK]: Empty Epsilon mock server is running')
+  fetch(req, server) {
+    if (
+      server.upgrade(req, {
+        data: {
+          createdAt: Date.now(),
+        },
+      })
+    ) {
+      return
+    }
+
+    return new Response("[EE CLIENT]: Empty Epsilon mock game client")
   },
+
+  websocket: {
+    message(ws, message) {
+      logger("Received message:", message.toString())
+    },
+    open(ws) {
+      internalState.clients++
+      logger("Client connected", `(${internalState.clients} total)`)
+      ws.subscribe(CHANNEL_ID)
+    },
+    close(ws, code, message) {
+      internalState.clients--
+      logger("Client disconnected", `(${internalState.clients} total)`)
+      ws.unsubscribe(CHANNEL_ID)
+    },
+    drain(ws) {
+      logger("socket drained")
+    },
+  },
+
   error(error: Error) {
-    return new Response('[EE MOCK]: Uh oh!!\n' + error.toString(), {
-      status: 500
+    return new Response("[EE CLIENT]: Uh oh!!\n" + error.toString(), {
+      status: 500,
     })
-  }
+  },
 })
+
+;(function publishGameState(prevTick: number = 0) {
+  const now = performance.now()
+  const delay = INTERVAL - ((now - prevTick) % INTERVAL)
+  const nextTick = now + delay
+
+  const data = JSON.stringify(generateData())
+
+  logger("Sending data:", data)
+  server.publish(CHANNEL_ID, data)
+
+  setTimeout(() => publishGameState(nextTick), delay)
+})(performance.now() + INTERVAL)

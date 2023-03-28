@@ -10,7 +10,7 @@ const SpaceshipRegistry = new Map<SpaceShipID, SpaceshipState>()
 
 export function setSpaceshipState(
   id: SpaceShipID,
-  newState: SpaceshipState
+  newState: SpaceshipState,
 ): SpaceshipStateDiff | null {
   const currentState = SpaceshipRegistry.get(id)
   const diff = currentState

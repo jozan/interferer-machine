@@ -1,9 +1,9 @@
-import { registerModule, ModuleInitResult, Events } from '../moduleManager'
-import { chunk } from '../chunk'
-import { invariant } from '../invariant'
-import { shuffle } from '../shuffle'
+import { registerModule, ModuleInitResult, Events } from "../moduleManager"
+import { chunk } from "../chunk"
+import { invariant } from "../invariant"
+import { shuffle } from "../shuffle"
 
-const subscribesTo: Events = ['hull']
+const subscribesTo: Events = ["hull"]
 
 async function init(signal: AbortSignal): Promise<ModuleInitResult> {
   return
@@ -13,15 +13,15 @@ void registerModule(import.meta.url, {
   init,
   subscribesTo,
   listener(changed) {
-    console.log('wires module: changed:', changed)
-  }
+    console.log("wires module: changed:", changed)
+  },
 })
 
 const validX = [0, 1, 2, 3, 4] as const
 const validY = [-1, ...validX] as const
 
-type ValidX = typeof validX[number]
-type ValidY = typeof validY[number]
+type ValidX = (typeof validX)[number]
+type ValidY = (typeof validY)[number]
 type WirePair = [ValidX, ValidY][]
 
 type WirePairGenerationConfig = {
@@ -32,7 +32,7 @@ type WirePairGenerationConfig = {
 // TODO: randomize how many wires are connected
 //       y > -1 means connected
 export function generateRandomWirePairs(
-  config?: WirePairGenerationConfig
+  config?: WirePairGenerationConfig,
 ): WirePair[] {
   let pairs: [number, number][] = []
   const valuesX = [...validX]
@@ -57,30 +57,30 @@ export function deserializeWirePairs(wires: string): WirePair[] | null {
   try {
     const array = JSON.parse(wires)
 
-    invariant(Array.isArray(array), 'wires must be an array')
-    invariant(array.length === 10, 'wires must have 10 elements')
+    invariant(Array.isArray(array), "wires must be an array")
+    invariant(array.length === 10, "wires must have 10 elements")
 
     const pairs = chunk(array, 2)
 
     invariant(
       pairs.every(([x, y]) => validX.includes(x) && validY.includes(y)),
-      `wires must be valid numbers: for x: ${validX} and for y: ${validY}}`
+      `wires must be valid numbers: for x: ${validX} and for y: ${validY}}`,
     )
 
     const xValues = pairs.map(([x]) => x)
 
     invariant(
       new Set(xValues).size === xValues.length,
-      'wires x must have unique values'
+      "wires x must have unique values",
     )
 
     return pairs
   } catch (error) {
-    const general = 'deserializeWirePairs error'
+    const general = "deserializeWirePairs error"
 
     if (error instanceof SyntaxError) {
       console.error(
-        `${general}: input not valid JSON array. (${error.message})`
+        `${general}: input not valid JSON array. (${error.message})`,
       )
       return null
     }
@@ -101,18 +101,18 @@ type WirePairSerializationConfig = {
 
 export function serializeWirePairs(
   pairs: WirePair[],
-  config?: WirePairSerializationConfig
+  config?: WirePairSerializationConfig,
 ): string {
   if (!config?.pretty) {
     return JSON.stringify(pairs.flat())
   }
 
-  let serialized = '['
+  let serialized = "["
 
   for (let i = 0; i < pairs.length; i++) {
     const [x, y] = pairs[i]
-    serialized += `${x},${y.toString().padStart(2, ' ')}${
-      i === pairs.length - 1 ? ']' : ',  '
+    serialized += `${x},${y.toString().padStart(2, " ")}${
+      i === pairs.length - 1 ? "]" : ",  "
     }`
   }
 

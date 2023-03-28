@@ -14,7 +14,7 @@ export function parseEnv<T>(key: string, parser: (value: string) => T): T {
 
   if (!Boolean(parsedValue)) {
     throw new Error(
-      `Invalid value for environment variable: ${key}, parsed to ${parsedValue} (${typeof parsedValue})`
+      `Invalid value for environment variable: ${key}, parsed to ${parsedValue} (${typeof parsedValue})`,
     )
   }
 

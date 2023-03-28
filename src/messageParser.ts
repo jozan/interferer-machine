@@ -1,8 +1,8 @@
-import { chunk } from './chunk'
-import { failure, ok, Result } from './result'
+import { chunk } from "./chunk"
+import { failure, ok, Result } from "./result"
 
-const validKeys = ['callsign', 'hull', 'shieldsActive'] as const
-type ValidKey = typeof validKeys[number]
+const validKeys = ["callsign", "hull", "shieldsActive"] as const
+type ValidKey = (typeof validKeys)[number]
 
 type Message = {
   callsign: SpaceShipID
@@ -13,7 +13,7 @@ type Message = {
 const validators = {
   callsign: withError(ensureString, `callsign must be a string`),
   hull: withError(ensureNumber, `hull must be a number`),
-  shieldsActive: withError(ensureZeroOrOne, `shieldsActive must be 0 or 1`)
+  shieldsActive: withError(ensureZeroOrOne, `shieldsActive must be 0 or 1`),
 }
 
 export function parseMessage(input: string): Result<Message> {
@@ -21,17 +21,17 @@ export function parseMessage(input: string): Result<Message> {
 
   if (!Array.isArray(message)) {
     return failure(
-      new Error('Invalid message. Expected an array but got: ' + input)
+      new Error("Invalid message. Expected an array but got: " + input),
     )
   }
 
   if (message.length < 1) {
-    return failure(new Error('Invalid message. Expected at least two elements'))
+    return failure(new Error("Invalid message. Expected at least two elements"))
   }
 
   // make sure we are dealing with an array of tuples
   if (message.length % 2 !== 0) {
-    return failure(new Error('Expected an even number of elements'))
+    return failure(new Error("Expected an even number of elements"))
   }
 
   const entries = chunk(message, 2)
@@ -40,7 +40,7 @@ export function parseMessage(input: string): Result<Message> {
   for (const [key, value] of entries) {
     if (!validKeys.includes(key as any)) {
       // TODO: maybe skip unkown keys?
-      errors.push(new Error('Unknown key: ' + key))
+      errors.push(new Error("Unknown key: " + key))
       continue
     }
 
@@ -51,7 +51,7 @@ export function parseMessage(input: string): Result<Message> {
   }
 
   if (errors.length > 0) {
-    return failure(new Error('Errors parsing message'), ...errors)
+    return failure(new Error("Errors parsing message"), ...errors)
   }
 
   return ok(Object.fromEntries(entries))
@@ -59,7 +59,7 @@ export function parseMessage(input: string): Result<Message> {
 
 function withError<T>(
   validator: (value: unknown) => T | null,
-  message: string
+  message: string,
 ) {
   return (input: unknown): [null, T] | [string, null] => {
     const value = validator(input)
@@ -73,14 +73,14 @@ function withError<T>(
 }
 
 function ensureString(value: unknown): string | null {
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     return value
   }
   return null
 }
 
 function ensureNumber(value: unknown): number | null {
-  if (typeof value === 'number') {
+  if (typeof value === "number") {
     return value
   }
 

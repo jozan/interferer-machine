@@ -1,4 +1,4 @@
-import { moduleRegistry } from '../moduleManager'
+import { moduleRegistry } from "../moduleManager"
 
 export function Index() {
   return (
@@ -9,7 +9,7 @@ export function Index() {
       <style>
         {`body {
 						font-family: monospace;
-				  }`.replace(/\s/g, '')}
+				  }`.replace(/\s/g, "")}
       </style>
       <body>
         <div>
@@ -19,7 +19,7 @@ export function Index() {
             {Array.from(moduleRegistry).map(([id, mod]) => (
               <li key={id}>
                 <strong>{id}</strong>
-                <p>subscribes to: {mod.subscribesTo.join(', ')}</p>
+                <p>subscribes to: {mod.subscribesTo.join(", ")}</p>
               </li>
             ))}
           </ul>

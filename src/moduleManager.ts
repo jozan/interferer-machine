@@ -1,7 +1,7 @@
-import type { Promisable } from 'type-fest'
-import { SpaceshipStateDiff } from './spaceshipStates'
+import type { Promisable } from "type-fest"
+import { SpaceshipStateDiff } from "./spaceshipStates"
 
-type Event = 'hull' | 'shieldsActive'
+type Event = "hull" | "shieldsActive"
 export type Events = Event[]
 
 export type ModuleInitResult = void
@@ -24,10 +24,10 @@ const moduleControllers = new Map<ModuleID, AbortController>()
 export const moduleRegistry = new Map<ModuleID, ModuleLoaderWithSelector>()
 
 const getModuleID = (url: string): ModuleID =>
-  url.split('/').pop()!.split('.')[0] as ModuleID
+  url.split("/").pop()!.split(".")[0] as ModuleID
 
 function createSelector(
-  subscribedEvents: Events
+  subscribedEvents: Events,
 ): (state: SpaceshipStateDiff) => SpaceshipStateDiff | null {
   return (state) => {
     const selectedState = subscribedEvents.reduce((acc, property) => {
@@ -67,12 +67,4 @@ export async function registerModule(url: string, ...loaders: ModuleLoader[]) {
   for (const loader of loaders) {
     setupModule(id, loader)
   }
-}
-
-function sort<T>(input: T[]): T[] {
-  return [...input].sort()
-}
-
-export function subscriptionKey(events: Events): number | bigint {
-  return Bun.hash(sort(events).join(''), 1000)
 }

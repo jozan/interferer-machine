@@ -7,7 +7,7 @@ export function shuffle<T>(array: T[]): T[] {
     currentIndex--
     ;[array[currentIndex], array[randomIndex]] = [
       array[randomIndex],
-      array[currentIndex]
+      array[currentIndex],
     ]
   }
 

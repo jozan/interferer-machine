@@ -1,7 +1,7 @@
 // Based on Pico (https://github.com/yusukebe/pico/blob/main/src/pico.ts)
 // adjusted to support Bun
 
-import { Server } from 'bun'
+import { Server } from "bun"
 
 declare global {
   interface Request {
@@ -26,20 +26,23 @@ type Context = {
 }
 
 const METHODS = [
-  'get',
-  'post',
-  'put',
-  'delete',
-  'patch',
-  'options',
-  'head'
+  "get",
+  "post",
+  "put",
+  "delete",
+  "patch",
+  "options",
+  "head",
 ] as const
 
 export type Handler = (context: Context) => Response | Promise<Response>
 
 function defineDynamicClass(): {
   new (): {
-    [key in typeof METHODS[number]]: (path: string, handler: Handler) => Router
+    [key in (typeof METHODS)[number]]: (
+      path: string,
+      handler: Handler,
+    ) => Router
   }
 } {
   return class {} as never
@@ -63,7 +66,7 @@ export class Router extends defineDynamicClass() {
     const route = {
       pattern: new URLPattern({ pathname: path }),
       method: method.toLowerCase(),
-      handler
+      handler,
     }
     this.r.push(route)
     return this
@@ -71,13 +74,13 @@ export class Router extends defineDynamicClass() {
 
   private match(
     method: string,
-    url: string
+    url: string,
   ): { handler: Handler; result: URLPatternResult } | undefined {
     method = method.toLowerCase()
     for (const route of this.r) {
       const match = route.pattern.exec(url)
       if (
-        (match && route.method === 'all') ||
+        (match && route.method === "all") ||
         (match && route.method === method)
       ) {
         return { handler: route.handler, result: match }
@@ -88,7 +91,7 @@ export class Router extends defineDynamicClass() {
   fetch = (req: Request, server: Server) => {
     const match = this.match(req.method, req.url)
     if (match === undefined) {
-      return new Response('Not Found', { status: 404 })
+      return new Response("Not Found", { status: 404 })
     }
 
     Request.prototype.param = function (this: Request, key?: string) {
@@ -98,7 +101,7 @@ export class Router extends defineDynamicClass() {
       }
 
       return groups
-    } as InstanceType<typeof Request>['param']
+    } as InstanceType<typeof Request>["param"]
 
     req.query = (key) => new URLSearchParams(match.result.search.input).get(key)
     req.header = (key) => req.headers.get(key)
@@ -110,9 +113,9 @@ export class Router extends defineDynamicClass() {
       json: (json) =>
         new Response(JSON.stringify(json), {
           headers: {
-            'Content-Type': 'application/json'
-          }
-        })
+            "Content-Type": "application/json",
+          },
+        }),
     })
 
     return response
