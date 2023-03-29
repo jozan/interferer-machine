@@ -20,19 +20,19 @@ bun install
 To run server:
 
 ```sh
-PORT=8080 bun run main.ts
+PORT=8080 EE_CLIENT_WS="ws://localhost:8081" bun run main.tsx
 ```
 
-To run Empty Epsilon mock client to develop and test out server implementation without having to run Empty Epsilon:
+To run Empty Epsilon mock game server to develop and test out server implementation without having to run Empty Epsilon:
 
-```sh
-WEBSOCKET_URL=ws://127.0.0.1:8080 PORT=8088 bun run ee.mock.ts
+```
+PORT=8081 INTERVAL=1000 bun run ee.mock.ts
 ```
 
 ## TODO
 
 - [x] Parse incoming websocket messages from EE into a more usable format
-- [ ] Swap out websocket server to be a client that connects to EE
+- [x] Swap out websocket server to be a client that connects to EE
 - [ ] Register connected spaceships by their callsigns (if those are unique...)
 - [x] Simple HTTP server to receive messages from devices
 - [ ] Simple HTTP UI to display connected spaceships and devices

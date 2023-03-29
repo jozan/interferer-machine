@@ -74,15 +74,15 @@ const server = Bun.serve<WebSocketData>({
   },
 })
 
-;(function publishGameState(prevTick: number = 0) {
+;(function broadcastGameState(prevTick: number = 0) {
   const now = performance.now()
   const delay = INTERVAL - ((now - prevTick) % INTERVAL)
   const nextTick = now + delay
 
   const data = JSON.stringify(generateData())
 
-  logger("Sending data:", data)
+  logger("Broadcasting data:", data)
   server.publish(CHANNEL_ID, data)
 
-  setTimeout(() => publishGameState(nextTick), delay)
+  setTimeout(() => broadcastGameState(nextTick), delay)
 })(performance.now() + INTERVAL)
