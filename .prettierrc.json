@@ -4,5 +4,6 @@
   "semi": false,
   "singleQuote": false,
   "printWidth": 80,
-  "arrowParens": "always"
+  "arrowParens": "always",
+  "proseWrap": "always"
 }

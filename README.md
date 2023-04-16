@@ -2,9 +2,12 @@
 
 Some kind of service for [Empty Epsilon](https://github.com/daid/EmptyEpsilon).
 
+The service reads Empty Epsilon game state via websocket. Each module subscribes
+to changes in the game state and acts on it.
+
 ## Pre-requisites
 
-- macOS / Linux
+- macOS / Linux [WLS2]
 - [Bun](https://bun.sh) - the runtime
 
 ## Setupping
@@ -23,7 +26,8 @@ To run server:
 PORT=8080 EE_CLIENT_WS="ws://localhost:8081" bun run main.tsx
 ```
 
-To run Empty Epsilon mock game server to develop and test out server implementation without having to run Empty Epsilon:
+To run Empty Epsilon mock game server to develop and test out server
+implementation without having to run Empty Epsilon:
 
 ```
 PORT=8081 INTERVAL=1000 bun run ee.mock.ts
@@ -36,8 +40,10 @@ PORT=8081 INTERVAL=1000 bun run ee.mock.ts
 - [ ] Register connected spaceships by their callsigns (if those are unique...)
 - [x] Simple HTTP server to receive messages from devices
 - [ ] Simple HTTP UI to display connected spaceships and devices
-- [x] Create event system that emits events when spaceship's state changes (e.g. when it enters into a nebula, takes hull damage, subystem changes)
-- [x] Module can subscribe to events such as hull damage, ship modules (reactor, shields, etc)
+- [x] Create event system that emits events when spaceship's state changes (e.g.
+      when it enters into a nebula, takes hull damage, subystem changes)
+- [x] Module can subscribe to events such as hull damage, ship modules (reactor,
+      shields, etc)
 - [ ] support these events (list content can change...)
   - `hullDamage`
   - `shieldsState`
