@@ -1,16 +1,26 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "jsx": "preserve",
-    "lib": ["ESNext"],
+    // enable latest features
+    "lib": ["esnext"],
     "module": "esnext",
     "target": "esnext",
-    "moduleResolution": "node",
-    "noEmit": true,
-    // so that if your project isn't using TypeScript, it still has autocomplete
-    "allowJs": true,
-    // "bun-types" is the important part
+
+    // typescript 5.x+
+    "moduleResolution": "bundler",
+
+    // support JSX, CommonJS
+    "jsx": "react-jsx", // support JSX (value doesn't matter)
+    "allowJs": true, // allow importing `.js` from `.ts`
+    "esModuleInterop": true, // allow default imports for CommonJS modules
+
+    // best practices
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    // add Bun type definitions
     "types": ["bun-types"]
   },
+
   "include": ["src", "ee.mock.ts", "main.ts"]
 }

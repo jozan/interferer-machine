@@ -6,7 +6,8 @@
     "@types/react": "^18.0.29",
     "@types/react-dom": "^18.0.11",
     "bun-types": "^0.5.8",
-    "type-fest": "^3.7.1"
+    "type-fest": "^3.7.1",
+    "typescript": "^5.0.4"
   },
   "dependencies": {
     "react": "^18.2.0",
