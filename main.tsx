@@ -1,3 +1,4 @@
+import React from "react"
 import "./src/polyfills"
 import { errorPrinter } from "./src/errorPrinter"
 import { parseMessage } from "./src/messageParser"

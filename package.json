@@ -1,6 +1,6 @@
 {
   "name": "interferer-machine",
-  "module": "main.ts",
+  "module": "main.tsx",
   "type": "module",
   "devDependencies": {
     "@types/react": "^18.0.29",
